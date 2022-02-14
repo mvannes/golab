@@ -28,6 +28,7 @@ func init() {
 	viper.SetConfigName("golab-config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("~/")
 
 	err := viper.ReadInConfig()
 	if err != nil {
