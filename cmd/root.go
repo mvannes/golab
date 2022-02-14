@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	mergerequest "github.com/mvannes/golab/cmd/merge_request"
 	"github.com/mvannes/golab/cmd/project"
@@ -24,13 +25,16 @@ func Execute() error {
 func init() {
 	project.Add(rootCmd)
 	mergerequest.Add(rootCmd)
-
+	dir, err := os.UserHomeDir()
+	if nil != err {
+		log.Fatal(err)
+	}
 	viper.SetConfigName("golab-config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("~/")
+	viper.AddConfigPath(dir)
 
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
