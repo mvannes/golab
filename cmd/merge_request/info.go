@@ -40,10 +40,10 @@ var openCmd = &cobra.Command{
 }
 
 func checkUserForTerm(u lab.BasicUser, term string) bool {
-	if strings.Contains(u.Name, term) {
+	if strings.Contains(strings.ToLower(u.Name), term) {
 		return true
 	}
-	if strings.Contains(u.Username, term) {
+	if strings.Contains(strings.ToLower(u.Username), term) {
 		return true
 	}
 	return false
@@ -55,13 +55,14 @@ func matchesSearchTerms(mr lab.MergeRequest, searchTerms []string) bool {
 	users = append(users, mr.Assignees...)
 
 	for _, t := range searchTerms {
+		t = strings.ToLower(t)
 		for _, u := range users {
 			if checkUserForTerm(*u, t) {
 				return true
 			}
 		}
 
-		if strings.Contains(mr.Description, t) {
+		if strings.Contains(strings.ToLower(mr.Description), t) {
 			return true
 		}
 	}
