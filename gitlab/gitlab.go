@@ -36,7 +36,12 @@ func NewClient() *GitlabClient {
 	if "" == gitlabToken {
 		log.Fatal(errors.New("No gitlab token configured"))
 	}
-	gitlabClient, err := gitlab.NewClient(gitlabToken, gitlab.WithBaseURL("https://gitlab.hostnetbv.nl/api/v4"))
+	gitlabBaseUrl := viper.GetString("gitlab-base-url")
+
+	if "" == gitlabBaseUrl {
+		log.Fatal(errors.New("No gitlab base url configured"))
+	}
+	gitlabClient, err := gitlab.NewClient(gitlabToken, gitlab.WithBaseURL(gitlabBaseUrl))
 
 	if nil != err {
 		log.Fatal(err)
