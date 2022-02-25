@@ -193,3 +193,8 @@ func doMergeRequestListRequest(c gitlab.Client, mrChan chan gitlab.MergeRequest,
 		mrChan <- *mr
 	}
 }
+
+func (g *GitlabClient) RemoveBranch(p gitlab.Project, b gitlab.Branch) error {
+	_, err := g.gitlab.Branches.DeleteBranch(p.ID, b.Name)
+	return err
+}
