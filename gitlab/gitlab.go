@@ -72,7 +72,7 @@ func (g *GitlabClient) Projects(namespace string) ([]gitlab.Project, error) {
 
 	var result []gitlab.Project
 	for p := range c {
-		if p.Namespace.Name == namespace {
+		if p.Namespace.Path == namespace {
 			result = append(result, p)
 		}
 	}
@@ -211,6 +211,7 @@ func (g *GitlabClient) SetOptions(p gitlab.Project, settings ProjectSettings) er
 	if settings.HasChanges() == false {
 		return nil
 	}
+
 	opts := &gitlab.EditProjectOptions{}
 	if nil != settings.RemoveSourceBranchAfterMerge {
 		opts.RemoveSourceBranchAfterMerge = settings.RemoveSourceBranchAfterMerge

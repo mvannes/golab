@@ -1,7 +1,6 @@
 package project
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/mvannes/golab/gitlab"
@@ -24,13 +23,34 @@ var settingsCmd = &cobra.Command{
 		if cmd.Flag("remove-source-branch").Changed {
 			settings.RemoveSourceBranchAfterMerge = &flagRemoveSourceBranch
 		}
-		fmt.Println(settings)
 		c.SetOptions(*p, settings)
+	},
+}
 
+var settingsForNamespaceCmd = &cobra.Command{
+	Use:   "settings-for-namespace",
+	Short: "set settings for all projects in a namespace",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		c := gitlab.NewClient()
+		projects, err := c.Projects(args[0])
+		if nil != err {
+			log.Fatal(err.Error())
+		}
+
+		for _, p := range projects {
+			settings := gitlab.ProjectSettings{}
+			if cmd.Flag("remove-source-branch").Changed && flagRemoveSourceBranch != p.RemoveSourceBranchAfterMerge {
+				settings.RemoveSourceBranchAfterMerge = &flagRemoveSourceBranch
+			}
+			c.SetOptions(p, settings)
+		}
 	},
 }
 
 func init() {
 	settingsCmd.Flags().BoolVarP(&flagRemoveSourceBranch, "remove-source-branch", "s", false, "update remove source branch value")
+	settingsForNamespaceCmd.Flags().BoolVarP(&flagRemoveSourceBranch, "remove-source-branch", "s", false, "update remove source branch value")
 	projectCmd.AddCommand(settingsCmd)
+	projectCmd.AddCommand(settingsForNamespaceCmd)
 }
