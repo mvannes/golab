@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/spf13/viper"
-	"github.com/xanzy/go-gitlab"
+	gitlab "github.com/xanzy/go-gitlab"
 )
 
 type GitlabClient struct {
@@ -218,5 +218,52 @@ func (g *GitlabClient) SetOptions(p gitlab.Project, settings ProjectSettings) er
 	}
 
 	_, _, err := g.gitlab.Projects.EditProject(p.ID, opts)
+	return err
+}
+
+type ProjectJiraSettings struct {
+	Password               string
+	CommitEventsUpdateJira *bool
+}
+
+func (p *ProjectJiraSettings) HasChanges() bool {
+	return nil != p.CommitEventsUpdateJira
+}
+
+func (g *GitlabClient) GetJiraIntegration(p gitlab.Project) (*gitlab.JiraService, error) {
+	j, _, err := g.gitlab.Services.GetJiraService(p.ID)
+
+	return j, err
+}
+
+func (g *GitlabClient) UpdateJiraIntegration(p gitlab.Project, s ProjectJiraSettings) error {
+	if !s.HasChanges() {
+		return nil
+	}
+
+	j, err := g.GetJiraIntegration(p)
+	if nil != err {
+		return err
+	}
+
+	opts := &gitlab.SetJiraServiceOptions{
+		URL:                   &j.Properties.URL,
+		APIURL:                &j.Properties.APIURL,
+		ProjectKey:            &j.Properties.ProjectKey,
+		Username:              &j.Properties.Username,
+		Password:              &s.Password,
+		Active:                &j.Active,
+		JiraIssueTransitionID: &j.Properties.JiraIssueTransitionID,
+		CommitEvents:          &j.CommitEvents,
+		MergeRequestsEvents:   &j.MergeRequestsEvents,
+		CommentOnEventEnabled: &j.CommentOnEventEnabled,
+	}
+
+	if s.HasChanges() {
+		opts.CommitEvents = s.CommitEventsUpdateJira
+	}
+
+	_, err = g.gitlab.Services.SetJiraService(p.ID, opts)
+
 	return err
 }
