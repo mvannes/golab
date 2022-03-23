@@ -201,20 +201,37 @@ func (g *GitlabClient) RemoveBranch(p gitlab.Project, b gitlab.Branch) error {
 
 type ProjectSettings struct {
 	RemoveSourceBranchAfterMerge *bool
+	SquashOption                 *string
 }
 
 func (p *ProjectSettings) HasChanges() bool {
-	return nil != p.RemoveSourceBranchAfterMerge
+	return nil != p.RemoveSourceBranchAfterMerge || nil != p.SquashOption
 }
 
 func (g *GitlabClient) SetOptions(p gitlab.Project, settings ProjectSettings) error {
-	if settings.HasChanges() == false {
+	if !settings.HasChanges() {
 		return nil
 	}
 
 	opts := &gitlab.EditProjectOptions{}
 	if nil != settings.RemoveSourceBranchAfterMerge {
 		opts.RemoveSourceBranchAfterMerge = settings.RemoveSourceBranchAfterMerge
+	}
+	if nil != settings.SquashOption {
+		var squashOpt gitlab.SquashOptionValue
+		switch *settings.SquashOption {
+		case "default_on":
+			squashOpt = gitlab.SquashOptionDefaultOn
+		case "default_off":
+			squashOpt = gitlab.SquashOptionDefaultOff
+		case "never":
+			squashOpt = gitlab.SquashOptionNever
+		case "always":
+			squashOpt = gitlab.SquashOptionAlways
+		default:
+			return errors.New("non valid squash option given")
+		}
+		opts.SquashOption = &squashOpt
 	}
 
 	_, _, err := g.gitlab.Projects.EditProject(p.ID, opts)

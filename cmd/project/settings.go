@@ -8,6 +8,7 @@ import (
 )
 
 var flagRemoveSourceBranch bool
+var flagSquashOption string
 
 var settingsCmd = &cobra.Command{
 	Use:   "settings",
@@ -23,6 +24,10 @@ var settingsCmd = &cobra.Command{
 		if cmd.Flag("remove-source-branch").Changed {
 			settings.RemoveSourceBranchAfterMerge = &flagRemoveSourceBranch
 		}
+		if cmd.Flag("squash-option").Changed && flagSquashOption != string(p.SquashOption) {
+			settings.SquashOption = &flagSquashOption
+		}
+
 		c.SetOptions(*p, settings)
 	},
 }
@@ -107,8 +112,9 @@ var jiraSettingsForNamespaceCmd = &cobra.Command{
 }
 
 func init() {
-	settingsCmd.Flags().BoolVarP(&flagRemoveSourceBranch, "remove-source-branch", "s", false, "update remove source branch value")
-	settingsForNamespaceCmd.Flags().BoolVarP(&flagRemoveSourceBranch, "remove-source-branch", "s", false, "update remove source branch value")
+	settingsCmd.Flags().BoolVarP(&flagRemoveSourceBranch, "remove-source-branch", "r", false, "update remove source branch value")
+	settingsCmd.Flags().StringVarP(&flagSquashOption, "squash-option", "s", "", "update squas option value. [never|always|default_off|default_on]")
+	settingsForNamespaceCmd.Flags().BoolVarP(&flagRemoveSourceBranch, "remove-source-branch", "r", false, "update remove source branch value")
 
 	jiraSettingsCmd.Flags().BoolVarP(&flagCommitEventsWillUpdateJira, "commits-update-jira", "c", false, "update commit events update jira value")
 	jiraSettingsCmd.Flags().StringVarP(&flagJiraUserPassword, "jira-password", "p", "", "MUST PROVIDE, the jira user password to update to.")
