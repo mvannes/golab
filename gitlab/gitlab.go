@@ -239,6 +239,8 @@ func (g *GitlabClient) SetOptions(p gitlab.Project, settings ProjectSettings) er
 }
 
 type ProjectJiraSettings struct {
+	URL                    string
+	Username               string
 	Password               string
 	CommitEventsUpdateJira *bool
 }
@@ -258,29 +260,22 @@ func (g *GitlabClient) UpdateJiraIntegration(p gitlab.Project, s ProjectJiraSett
 		return nil
 	}
 
-	j, err := g.GetJiraIntegration(p)
-	if nil != err {
-		return err
-	}
+	active := true
+	CommentOnEventEnabled := false
 
 	opts := &gitlab.SetJiraServiceOptions{
-		URL:                   &j.Properties.URL,
-		APIURL:                &j.Properties.APIURL,
-		ProjectKey:            &j.Properties.ProjectKey,
-		Username:              &j.Properties.Username,
+		URL:                   &s.URL,
+		Username:              &s.Username,
 		Password:              &s.Password,
-		Active:                &j.Active,
-		JiraIssueTransitionID: &j.Properties.JiraIssueTransitionID,
-		CommitEvents:          &j.CommitEvents,
-		MergeRequestsEvents:   &j.MergeRequestsEvents,
-		CommentOnEventEnabled: &j.CommentOnEventEnabled,
+		Active:                &active,
+		CommentOnEventEnabled: &CommentOnEventEnabled,
 	}
 
 	if s.HasChanges() {
 		opts.CommitEvents = s.CommitEventsUpdateJira
 	}
 
-	_, err = g.gitlab.Services.SetJiraService(p.ID, opts)
+	_, err := g.gitlab.Services.SetJiraService(p.ID, opts)
 
 	return err
 }
