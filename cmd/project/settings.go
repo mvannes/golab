@@ -1,6 +1,7 @@
 package project
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/mvannes/golab/gitlab"
@@ -53,7 +54,9 @@ var settingsForNamespaceCmd = &cobra.Command{
 	},
 }
 var flagCommitEventsWillUpdateJira bool
+var flagJiraUserName string
 var flagJiraUserPassword string
+var flagJiraUrl string
 
 var jiraSettingsCmd = &cobra.Command{
 	Use:   "jira-settings",
@@ -67,8 +70,11 @@ var jiraSettingsCmd = &cobra.Command{
 		}
 
 		settings := gitlab.ProjectJiraSettings{
+			URL:      flagJiraUrl,
+			Username: flagJiraUserName,
 			Password: flagJiraUserPassword,
 		}
+
 		if cmd.Flag("commits-update-jira").Changed {
 			settings.CommitEventsUpdateJira = &flagCommitEventsWillUpdateJira
 		}
@@ -92,6 +98,8 @@ var jiraSettingsForNamespaceCmd = &cobra.Command{
 		}
 
 		settings := gitlab.ProjectJiraSettings{
+			URL:      flagJiraUrl,
+			Username: flagJiraUserName,
 			Password: flagJiraUserPassword,
 		}
 		if cmd.Flag("commits-update-jira").Changed {
@@ -102,6 +110,8 @@ var jiraSettingsForNamespaceCmd = &cobra.Command{
 			if p.Archived {
 				continue
 			}
+
+			fmt.Println(p.Name)
 
 			err = c.UpdateJiraIntegration(p, settings)
 			if err != nil {
@@ -117,11 +127,19 @@ func init() {
 	settingsForNamespaceCmd.Flags().BoolVarP(&flagRemoveSourceBranch, "remove-source-branch", "r", false, "update remove source branch value")
 
 	jiraSettingsCmd.Flags().BoolVarP(&flagCommitEventsWillUpdateJira, "commits-update-jira", "c", false, "update commit events update jira value")
+	jiraSettingsCmd.Flags().StringVarP(&flagJiraUrl, "jira-url", "x", "", "MUST PROVIDE, the jira URL to update to.")
+	jiraSettingsCmd.Flags().StringVarP(&flagJiraUserName, "jira-user", "u", "", "MUST PROVIDE, the jira user name to update to.")
 	jiraSettingsCmd.Flags().StringVarP(&flagJiraUserPassword, "jira-password", "p", "", "MUST PROVIDE, the jira user password to update to.")
+	jiraSettingsCmd.MarkFlagRequired("jira-url")
+	jiraSettingsCmd.MarkFlagRequired("jira-user")
 	jiraSettingsCmd.MarkFlagRequired("jira-password")
 
 	jiraSettingsForNamespaceCmd.Flags().BoolVarP(&flagCommitEventsWillUpdateJira, "commits-update-jira", "c", false, "update commit events update jira value")
+	jiraSettingsForNamespaceCmd.Flags().StringVarP(&flagJiraUrl, "jira-url", "x", "", "MUST PROVIDE, the jira URL to update to.")
+	jiraSettingsForNamespaceCmd.Flags().StringVarP(&flagJiraUserName, "jira-user", "u", "", "MUST PROVIDE, the jira user name to update to.")
 	jiraSettingsForNamespaceCmd.Flags().StringVarP(&flagJiraUserPassword, "jira-password", "p", "", "MUST PROVIDE, the jira user password to update to.")
+	jiraSettingsForNamespaceCmd.MarkFlagRequired("jira-url")
+	jiraSettingsForNamespaceCmd.MarkFlagRequired("jira-user")
 	jiraSettingsForNamespaceCmd.MarkFlagRequired("jira-password")
 
 	projectCmd.AddCommand(settingsCmd)
