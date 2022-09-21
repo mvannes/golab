@@ -279,3 +279,9 @@ func (g *GitlabClient) UpdateJiraIntegration(p gitlab.Project, s ProjectJiraSett
 
 	return err
 }
+
+func (g *GitlabClient) CIVariables(p gitlab.Project) ([]*gitlab.ProjectVariable, error) {
+	variables, _, err := g.gitlab.ProjectVariables.ListVariables(p.ID, &gitlab.ListProjectVariablesOptions{})
+	return variables, err
+
+}
