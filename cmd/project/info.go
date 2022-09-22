@@ -24,7 +24,7 @@ var listCmd = &cobra.Command{
 			if p.Archived == true {
 				continue
 			}
-			fmt.Println(p.NameWithNamespace)
+			fmt.Println(p.PathWithNamespace)
 		}
 	},
 }
@@ -34,14 +34,13 @@ var getCmd = &cobra.Command{
 	Short: "Get single project by namespace and name",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-
 		c := gitlab.NewClient()
 		p, err := c.Project(args[0], args[1])
 		if nil != err {
 			log.Fatal(err.Error())
 		}
 
-		fmt.Println(p.NameWithNamespace)
+		fmt.Println(p.PathWithNamespace)
 	},
 }
 
@@ -87,7 +86,7 @@ var variablesCmd = &cobra.Command{
 
 			projectVariables = append(
 				projectVariables,
-				ProjectVariables{Project: p.NameWithNamespace, Variables: ciVariables},
+				ProjectVariables{Project: p.PathWithNamespace, Variables: ciVariables},
 			)
 		}
 

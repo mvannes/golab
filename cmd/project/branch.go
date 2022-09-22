@@ -172,7 +172,7 @@ var unprotectedDefaultBranchesCmd = &cobra.Command{
 
 			for _, b := range branches {
 				if b.Default == true && b.Protected == false {
-					fmt.Println(project.NameWithNamespace)
+					fmt.Println(project.PathWithNamespace)
 				}
 			}
 		}
