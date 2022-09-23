@@ -283,5 +283,17 @@ func (g *GitlabClient) UpdateJiraIntegration(p gitlab.Project, s ProjectJiraSett
 func (g *GitlabClient) CIVariables(p gitlab.Project) ([]*gitlab.ProjectVariable, error) {
 	variables, _, err := g.gitlab.ProjectVariables.ListVariables(p.ID, &gitlab.ListProjectVariablesOptions{})
 	return variables, err
+}
 
+func (g *GitlabClient) Pipelines(p gitlab.Project, branch string) ([]*gitlab.PipelineInfo, error) {
+	// This is paginated, but so far there has been no need to care for more than the first page.
+	pipelines, _, err := g.gitlab.Pipelines.ListProjectPipelines(p.ID, &gitlab.ListProjectPipelinesOptions{Ref: &branch})
+	return pipelines, err
+}
+
+func (g *GitlabClient) JobsForPipeline(p gitlab.Project, pipeline gitlab.PipelineInfo) ([]*gitlab.Job, error) {
+	// This is paginated, but so far there has been no need to care for more than the first page.
+	jobs, _, err := g.gitlab.Jobs.ListPipelineJobs(p.ID, pipeline.ID, &gitlab.ListJobsOptions{})
+
+	return jobs, err
 }
