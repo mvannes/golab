@@ -52,6 +52,7 @@ func checkUserForTerm(u lab.BasicUser, term string) bool {
 func matchesSearchTerms(mr lab.MergeRequest, searchTerms []string) bool {
 	var users []*lab.BasicUser
 	users = append(users, mr.Author)
+	users = append(users, mr.Reviewers...)
 	users = append(users, mr.Assignees...)
 
 	for _, t := range searchTerms {
