@@ -166,7 +166,7 @@ func (g *GitlabClient) MergeRequests(state MergeRequestState) ([]gitlab.MergeReq
 
 	for i := 1; i <= r.TotalPages; i++ {
 		mrWg.Add(1)
-		go doMergeRequestListRequest(*g.gitlab, c, opts, i)
+		go doMergeRequestListRequest(g.gitlab, c, opts, i)
 	}
 	go func() {
 		mrWg.Wait()
@@ -181,7 +181,7 @@ func (g *GitlabClient) MergeRequests(state MergeRequestState) ([]gitlab.MergeReq
 
 }
 
-func doMergeRequestListRequest(c gitlab.Client, mrChan chan gitlab.MergeRequest, opts gitlab.ListMergeRequestsOptions, page int) {
+func doMergeRequestListRequest(c *gitlab.Client, mrChan chan gitlab.MergeRequest, opts gitlab.ListMergeRequestsOptions, page int) {
 	defer mrWg.Done()
 
 	opts.Page = page

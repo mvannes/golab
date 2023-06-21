@@ -2,6 +2,7 @@ package mergerequest
 
 import (
 	"log"
+	"sort"
 	"strings"
 
 	"github.com/mvannes/golab/gitlab"
@@ -24,6 +25,10 @@ var openCmd = &cobra.Command{
 		if nil != err {
 			log.Fatal(err)
 		}
+
+		sort.Slice(mrs, func(i, j int) bool {
+			return mrs[i].UpdatedAt.After(*mrs[j].UpdatedAt)
+		})
 
 		headerFmt := color.New(color.BgBlue, color.Underline).SprintfFunc()
 		searchTerms := viper.GetStringSlice("merge-request-search-words")
